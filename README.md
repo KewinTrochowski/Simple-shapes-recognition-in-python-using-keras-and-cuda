@@ -3,7 +3,7 @@
 
 Kewin Trochowski 188860
 
-Michał Zarzycki 
+Michał Zarzycki 184856
 
 ## Introduction
 
@@ -234,9 +234,24 @@ model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accur
 history = model.fit(train_generator, validation_data=test_generator, epochs=100, verbose=1)
 
 ```
-We chose 100 epochs for our training as it resulted in high test accuracy:
+We chose 100 epochs for our training as it resulted in high test accuracy: 97.5%
+
+![image](https://github.com/KewinTrochowski/Simple-shapes-recognition-in-python-using-keras-and-cuda/assets/106476589/1323b9ed-0268-49b1-8db9-6a19d1e29bd3)
+
+
 
 ## Testing model
+
+We prepared 6 images to test our trained model. The images looks like this:
+
+![kolo](https://github.com/KewinTrochowski/Simple-shapes-recognition-in-python-using-keras-and-cuda/assets/106476589/7e52ba02-4553-4e80-9806-ec5b135f5512)
+![kolo2](https://github.com/KewinTrochowski/Simple-shapes-recognition-in-python-using-keras-and-cuda/assets/106476589/7baf6d2e-e6f8-4fbe-b023-2eb90ff8ce43)
+![kwadrat3](https://github.com/KewinTrochowski/Simple-shapes-recognition-in-python-using-keras-and-cuda/assets/106476589/83706ddd-5c6a-4d5f-a086-2de69543e4d2)
+<img src="https://github.com/KewinTrochowski/Simple-shapes-recognition-in-python-using-keras-and-cuda/assets/106476589/8319be29-17fe-41d3-9c14-f9a4a75348d3" width="100" height="100">
+<img src="https://github.com/KewinTrochowski/Simple-shapes-recognition-in-python-using-keras-and-cuda/assets/106476589/d8e90e45-c77f-424b-bff8-027edcb89c06" width="100" height="100">
+<img src="https://github.com/KewinTrochowski/Simple-shapes-recognition-in-python-using-keras-and-cuda/assets/106476589/08277648-3982-4638-8cbc-ecfe23e2f57f" width="100" height="100">
+
+The result we get:
 
 ![image](https://github.com/KewinTrochowski/Simple-shapes-recognition-in-python-using-keras-and-cuda/assets/106476589/4a15d4f6-c642-4305-bf04-7953a7501bc4)
 
