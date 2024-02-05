@@ -16,16 +16,36 @@ In order to create database we just generate 1000 images of 3 shapes. Each image
 
 ```
 
-    elif shape == 'square':
-        bbox = [(image_size[0] - shape_size) // 2, (image_size[1] - shape_size) // 2,
-                (image_size[0] + shape_size) // 2, (image_size[1] + shape_size) // 2]
-        shape_image = Image.new('RGBA', image_size)
-        shape_draw = ImageDraw.Draw(shape_image)
-        shape_draw.rectangle(bbox, outline=shape_color, fill=None)
-        if rotation_angle is not None:
-            shape_image = shape_image.rotate(rotation_angle, resample=Image.BILINEAR,
-                                             center=(image_size[0] // 2, image_size[1] // 2), fillcolor=(0, 0, 0, 0))
-        image.paste(shape_image, (0, 0), shape_image)
+@cuda.jit
+def create_triangle_kernel(image, shape_color, shape_size, rotation_angle, background_color):
+    i, j = cuda.grid(2)
+
+    if i < image.shape[0] and j < image.shape[1]:
+        image[i, j, 0] = background_color[0]
+        image[i, j, 1] = background_color[1]
+        image[i, j, 2] = background_color[2]
+
+        x0, y0 = image.shape[0] // 2, image.shape[1] // 2 + shape_size // 2
+        x1, y1 = image.shape[0] // 2 + shape_size // 2, image.shape[1] // 2 - shape_size // 2
+        x2, y2 = image.shape[0] // 2 - shape_size // 2, image.shape[1] // 2 - shape_size // 2
+
+        # Rotate vertices
+        theta = (rotation_angle * math.pi) / 180.0
+        x0_rot = (x0 - image.shape[0] // 2) * math.cos(theta) - (y0 - image.shape[1] // 2) * math.sin(theta) + image.shape[0] // 2
+        y0_rot = (x0 - image.shape[0] // 2) * math.sin(theta) + (y0 - image.shape[1] // 2) * math.cos(theta) + image.shape[1] // 2
+
+        x1_rot = (x1 - image.shape[0] // 2) * math.cos(theta) - (y1 - image.shape[1] // 2) * math.sin(theta) + image.shape[0] // 2
+        y1_rot = (x1 - image.shape[0] // 2) * math.sin(theta) + (y1 - image.shape[1] // 2) * math.cos(theta) + image.shape[1] // 2
+
+        x2_rot = (x2 - image.shape[0] // 2) * math.cos(theta) - (y2 - image.shape[1] // 2) * math.sin(theta) + image.shape[0] // 2
+        y2_rot = (x2 - image.shape[0] // 2) * math.sin(theta) + (y2 - image.shape[1] // 2) * math.cos(theta) + image.shape[1] // 2
+
+        if (i - x0_rot) * (y1_rot - y0_rot) - (x1_rot - x0_rot) * (j - y0_rot) > 0 and \
+           (i - x1_rot) * (y2_rot - y1_rot) - (x2_rot - x1_rot) * (j - y1_rot) > 0 and \
+           (i - x2_rot) * (y0_rot - y2_rot) - (x0_rot - x2_rot) * (j - y2_rot) > 0:
+            image[i, j, 0] = shape_color[0]
+            image[i, j, 1] = shape_color[1]
+            image[i, j, 2] = shape_color[2]
 ```
 
 All images are saved to one folder. For generating images and saving them we used PIL.
@@ -48,11 +68,9 @@ Next we had to labeled the images and we've done that by creating a csv file:
 
 Examples of generated images:
 
-![circle_30](https://github.com/KewinTrochowski/Simple-shapes-recognition-in-python-using-keras-and-cuda/assets/106476589/f19c7c78-1a86-48aa-bbb9-bf5e94ce426f)
-![square_703](https://github.com/KewinTrochowski/Simple-shapes-recognition-in-python-using-keras-and-cuda/assets/106476589/48537951-229c-4e08-b009-43379762ace3)
-![triangle_284](https://github.com/KewinTrochowski/Simple-shapes-recognition-in-python-using-keras-and-cuda/assets/106476589/4916bf5e-45af-4213-9e9f-1f2a35a906e6)
-
-
+![circle_49](https://github.com/KewinTrochowski/Simple-shapes-recognition-in-python-using-keras-and-cuda/assets/106476589/942b4c3c-cc63-4f94-9722-ba63612d1d86)
+![square_56](https://github.com/KewinTrochowski/Simple-shapes-recognition-in-python-using-keras-and-cuda/assets/106476589/8ab32701-a8b8-4ec9-956b-80c524f82b00)
+![triangle_272](https://github.com/KewinTrochowski/Simple-shapes-recognition-in-python-using-keras-and-cuda/assets/106476589/923310e8-8c08-4b4b-892f-631a9ec925d7)
 
 ## Preprocessing images
 
