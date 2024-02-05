@@ -67,14 +67,21 @@ def create_circle_kernel(image, shape_color, shape_size, background_color):
 def create_square_kernel(image, shape_color, shape_size, background_color):
     i, j = cuda.grid(2)
     if i < image.shape[0] and j < image.shape[1]:
+        # Set the background color for each pixel
         image[i, j, 0] = background_color[0]
         image[i, j, 1] = background_color[1]
         image[i, j, 2] = background_color[2]
-        half_size = shape_size / 2
-        if -half_size <= i < half_size and -half_size <= j < half_size:
-            image[i + image.shape[0] // 2, j + image.shape[1] // 2, 0] = shape_color[0]
-            image[i + image.shape[0] // 2, j + image.shape[1] // 2, 1] = shape_color[1]
-            image[i + image.shape[0] // 2, j + image.shape[1] // 2, 2] = shape_color[2]
+
+        # Calculate half of the square's size for positioning
+        half_size = shape_size // 2
+
+        # Check if the current pixel is within the bounds of the square
+        if (image.shape[0] // 2 - half_size) <= i < (image.shape[0] // 2 + half_size) and \
+                (image.shape[1] // 2 - half_size) <= j < (image.shape[1] // 2 + half_size):
+            # Set the square's color
+            image[i, j, 0] = shape_color[0]
+            image[i, j, 1] = shape_color[1]
+            image[i, j, 2] = shape_color[2]
 
 # Wrapper function to create the shape using CUDA kernels
 @cuda.jit
